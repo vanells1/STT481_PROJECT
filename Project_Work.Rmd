@@ -1,0 +1,130 @@
+---
+title: "Project"
+author: "Jess VanElls"
+date: "September 5, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
+```
+
+```{r}
+setwd("C:/Users/Jess VanElls/OneDrive - Michigan State University/FS18/STT_481/Project")
+```
+
+### Load Data
+```{r}
+train_all <- read.csv("train.csv", na.strings="<NA>")  # "NA" also included in the data, but that means it just doesn't have that feature, not that the value is null
+test_all <- read.csv("test.csv", na.strings="<NA>")  # "NA" also included in the data, but that means it just doesn't have that feature, not that the value is null
+```
+
+### Data Exploration
+```{r}
+str(train_all); str(test_all)
+summary(train_all)
+```
+
+### Data Cleaning
+Decisions about changing predictor data types were made based on the data descriptions
+```{r}
+train_type <- c()
+for (var in train_all[-81]) {
+  train_type = c(train_type, class(var))
+}
+test_type <- c()
+for (var in test_all) {
+  test_type = c(test_type, class(var))
+}
+
+my_type <- c("integer", "factor", "factor", "integer", "integer", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "integer", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "integer", "factor", "integer", "integer", "integer", "factor", "factor", "factor", "factor", "integer", "integer", "integer", "integer", "integer", "integer", "integer", "integer", "integer", "integer", "factor", "integer", "factor", "integer", "factor", "factor", "factor", "factor", "integer", "integer", "factor", "factor", "factor", "integer", "integer", "integer", "integer", "integer", "integer", "factor", "factor", "factor", "integer", "factor", "factor", "factor", "factor")
+
+types <- data.frame(train_type, test_type, my_type)
+rownames(types) <- colnames(test_all)
+
+changes <- c()
+for (i in 1:length(my_type)) {
+  if (train_type[i] != my_type[i] & test_type[i] != my_type[i]) {
+    changes <- c(changes, paste("train:", rownames(types)[i], ":", my_type[i], sep=""))
+    changes <- c(changes, paste("test:", rownames(types)[i], ":", my_type[i], sep=""))
+  } else if (train_type[i] != my_type[i]) {
+    changes <- c(changes, paste("train:", rownames(types)[i], ":", my_type[i], sep=""))
+  } else if (test_type[i] != my_type[i]) {
+    changes <- c(changes, paste("test:", rownames(types)[i], ":", my_type[i], sep=""))
+  }
+}
+changes
+```
+
+```{r}
+train_all$MSSubClass <- as.factor(train_all$MSSubClass)
+test_all$MSSubClass <- as.factor(test_all$MSSubClass)
+train_all$LotFrontage <- as.integer(train_all$LotFrontage)
+test_all$LotFrontage <- as.integer(test_all$LotFrontage)
+train_all$OverallQual <- as.factor(train_all$OverallQual)  # Treating the overall quality and condition as categorical variables because this is consistent with the rest of the scale types in the data
+test_all$OverallQual <- as.factor(test_all$OverallQual)  # Treating the overall quality and condition as categorical variables because this is consistent with the rest of the scale types in the data
+train_all$OverallCond <- as.factor(train_all$OverallCond)  # Treating the overall quality and condition as categorical variables because this is consistent with the rest of the scale types in the data
+test_all$OverallCond <- as.factor(test_all$OverallCond)  # Treating the overall quality and condition as categorical variables because this is consistent with the rest of the scale types in the data
+train_all$YearBuilt <- as.factor(train_all$YearBuilt)  # Treating dates as categorical
+test_all$YearBuilt <- as.factor(test_all$YearBuilt)  # Treating dates as categorical
+train_all$YearRemodAdd <- as.factor(train_all$YearRemodAdd)  # Treating dates as categorical
+test_all$YearRemodAdd <- as.factor(test_all$YearRemodAdd)  # Treating dates as categorical
+train_all$MasVnrArea <- as.integer(train_all$MasVnrArea)
+test_all$MasVnrArea <- as.integer(test_all$MasVnrArea)
+test_all$BsmtFinSF1 <- as.integer(test_all$BsmtFinSF1)
+test_all$BsmtFinSF2 <- as.integer(test_all$BsmtFinSF2)
+test_all$BsmtUnfSF <- as.integer(test_all$BsmtUnfSF)
+test_all$TotalBsmtSF <- as.integer(test_all$TotalBsmtSF)
+test_all$BsmtFullBath <- as.integer(test_all$BsmtFullBath)
+test_all$BsmtHalfBath <- as.integer(test_all$BsmtHalfBath)
+test_all$GarageCars <- as.integer(test_all$GarageCars)
+test_all$GarageArea <- as.integer(test_all$GarageArea)
+train_all$MoSold <- as.factor(train_all$MoSold)  # Treating dates as categorical
+test_all$MoSold <- as.factor(test_all$MoSold)  # Treating dates as categorical
+train_all$YrSold <- as.factor(train_all$YrSold)  # Treating dates as categorical
+test_all$YrSold <- as.factor(test_all$YrSold)  # Treating dates as categorical
+```
+
+### Subsets for Regression Purposes
+```{r}
+train <- train_all[,-1]  # remove ID column (not a variable)
+train_predictors <- train[,-dim(train)[2]]
+train_response <- train[,dim(train)[2]]
+
+test_predictors <- test_all[,-1]  # remove ID column (not a variable)
+```
+
+
+## Testing Models
+
+### KNN Regression
+**A typical value for a "good" $K$ is $\sqrt{n}$. (https://discuss.analyticsvidhya.com/t/how-to-choose-the-value-of-k-in-knn-algorithm/2606/12)**
+```{r}
+library(FNN)
+
+n <- length(train_predictors_num)
+K <- round(sqrt(n))
+
+# Create a smaller data frame of numeric type data, because KNN uses Euclidean distance
+train_predictors_num_col <- c()
+for (col in train_predictors) {
+  train_predictors_num_col <- c(train_predictors_num_col, is.numeric(col))
+}
+train_predictors_num <- train_predictors[,train_predictors_num_col]
+
+test_predictors_num_col <- c()
+for (col in test_predictors) {
+  test_predictors_num_col <- c(test_predictors_num_col, is.numeric(col))
+}
+test_predictors_num <- test_predictors[,test_predictors_num_col]
+
+test_predict_knn <- knn.reg(train=train_predictors_num, test=test_predictors_num, y=train_response, k=K)
+knn_prediction <- data.frame("ID"=test_all[,1], "SalePrice"=test_predict_knn$pred)
+write.csv(knn_prediction, file="KNN_Prediction_0916.csv", row.names=F)
+```
+
+### Simple Linear Regression
+```{r}
+
+```
+
