@@ -1,4 +1,4 @@
-Naming convention: "vanells1_0928_KNN_sqrtn"
+Naming convention: "0928_KNN_sqrtn_vanells1"
 
 # File Descriptions
 * `train.csv` is the CSV file from Kaggle with the training data.
