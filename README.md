@@ -1,3 +1,5 @@
+Naming convention: "vanells1_0928_KNN_sqrtn"
+
 # File Descriptions
 * `train.csv` is the CSV file from Kaggle with the training data.
 * `test.csv` is the CSV file from Kaggle with the testing data.
