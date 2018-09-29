@@ -102,15 +102,15 @@ test_predictors <- test_all[,-1]  # remove ID column (not a variable)
 ```{r}
 library(FNN)
 
-n <- length(train_predictors_num)
-K <- round(sqrt(n))
-
 # Create a smaller data frame of numeric type data, because KNN uses Euclidean distance
 train_predictors_num_col <- c()
 for (col in train_predictors) {
   train_predictors_num_col <- c(train_predictors_num_col, is.numeric(col))
 }
 train_predictors_num <- train_predictors[,train_predictors_num_col]
+
+n <- length(train_predictors_num)
+K <- round(sqrt(n))
 
 test_predictors_num_col <- c()
 for (col in test_predictors) {
