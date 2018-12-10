@@ -1,5 +1,5 @@
 # TO DO
-* Finish presentation slides (email/test Jess if you need the link again).
+* Finish presentation slides (email/text Jess if you need the link again).
 * Submit final code (see FINAL CODE file for Rmd's).
 
 ## File Descriptions
