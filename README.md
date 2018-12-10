@@ -1,6 +1,6 @@
 # TO DO
 * Finish presentation slides (email/test Jess if you need the link again).
-* Submit final code (see FINAL_CODE file for Rmd's).
+* Submit final code (see FINAL CODE file for Rmd's).
 
 ## File Descriptions
 * `train.csv` is the CSV file from Kaggle with the training data.
