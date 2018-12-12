@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Skip to line 294 for Colin's portion
+Skip to line 294 for Colin's portion. Copied Jess's data transformation from her midterm work. 
 
 
 
